@@ -17,61 +17,46 @@ function getdata() {
         },
         data: "fields cover,name; where cover>0; limit 10;"
     })
-    .then(function (response) {
-        console.log(response);
+        .then(function (response) {
+            console.log(response);
         })
-        // .catch(function(error){
-            //     console.log(error);
-            // });
-        }
-        
-        lempardata = async (req,res) => {
-            let response = await axios.get("http://api.steampowered.com/ISteamApps/GetAppList/v0002")
-                // console.log(response.data.applist.apps);
-                let data = response.data.applist.apps.map((item)=> {
-                    return item.appid
-                })
-                let lempar = data[3]
-                // console.log(data[3]);
-                let anotherresponse = await axios.get(`https://store.steampowered.com/api/appdetails/?appids=${lempar}`)
-                // console.log(anotherresponse.data);
-                // let apaan = [anotherresponse.data]
-                MongoClient.connect(url, function (err, db) {
-                    if (err) throw err;
-                    let dbo = db.db("tugasakhir").collection("tampung")
-                    dbo.insertMany([anotherresponse.data], function (err, res) {
-                        if (err) throw err;
-                        console.log("Number of documents inserted: " + res.insertedCount);
-                        db.close();
-                    });
-                });
-            }
+    // .catch(function(error){
+    //     console.log(error);
+    // });
+}
 
-tarikdata = async (req,res) => {
-        MongoClient.connect(url, (err, client) => {
+lempardata = async (req, res) => {
+    let response = await axios.get("http://api.steampowered.com/ISteamApps/GetAppList/v0002")
+    // console.log(response.data.applist.apps);
+    let data = response.data.applist.apps.map((item) => {
+        return item.appid
+    })
+    let lempar = data[3]
+    // console.log(data[3]);
+    let anotherresponse = await axios.get(`https://store.steampowered.com/api/appdetails/?appids=${lempar}`)
+    // console.log(anotherresponse.data);
+    // let apaan = [anotherresponse.data]
+    MongoClient.connect(url, function (err, db) {
+        if (err) throw err;
+        let dbo = db.db("tugasakhir").collection("tampung")
+        dbo.insertMany([anotherresponse.data], function (err, res) {
             if (err) throw err;
-            var dbo = client.db("tugasakhir").collection("datagame")
-            // var moviesCol = client.db('sample_mflix').collection('movies')
-            dbo.find().limit(6).toArray(function (err, result) {
-                if (err) throw err;
-                // console.log(result[0].nama);
-                client.close();
-                res.status(200).send(result)
-                // console.log(result);
-            })
-        moviesCol.find({
-            title: {
-                '$regex': req.query.title,
-                '$options': 'i'
-            }
-        }, obj).limit(parseInt(req.query.limit)).toArray((err, docs) => {
-            client.close()
-            if (err) res.status(500).send(err)
+            console.log("Number of documents inserted: " + res.insertedCount);
+            db.close();
+        });
+    });
+}
 
-            //console.log(docs)
-            res.status(200).send(docs)
+tarikdata = () => {
+    MongoClient.connect(url, (err, client) => {
+        if (err) throw err;
+        var dbo = client.db("tugasakhir").collection("tampung")
+        dbo.find().toArray(function (err, result) {
+            if (err) throw err;
+            client.close();
+            console.log(result[0][283811].data.name);
         })
-        })
+    })
 }
 
 tes = async (req, res) => {
@@ -90,18 +75,43 @@ tes = async (req, res) => {
     })
     // console.log(item);
     console.log(response.data.length);
-    console.log(response.data[1]);
+    console.log(response.data);
     const query = "insert into tes set ?;"
-    for (var i = 0; i < response.data.length; i++) {
-        connection.query(query, response.data[i], (error, result) => {
-            if (error) {
-                console.log(error);
-            }
-            console.log(result);
-        })
-    }
+    // for (var i = 0; i < response.data.length; i++) {
+    //     connection.query(query, response.data[i], (error, result) => {
+    //         if (error) {
+    //             console.log(error);
+    //         }
+    //         console.log(result);
+    //     })
+    // }
 }
 
+isidatabase = async (req, res) => {
+    let response = await axios.get("http://api.steampowered.com/ISteamApps/GetAppList/v0002")
+    let data = response.data.applist.apps.map((item) => {
+        return item.appid
+    })
+    let lempar = data[0]
+    let anotherresponse = await axios.get(`https://store.steampowered.com/api/appdetails/?appids=${lempar}`)
+    let tes = [anotherresponse.data]
+    let isi = tes[0][lempar].data
+    let nama = isi.name
+    let gambar = isi.header_image
+    let harga = isi.price_overview.initial
+    let body = {nama : nama, harga : harga, gambar:gambar}
+    const query = "insert into gamedata set ?"
+    console.log(isi);
+    console.log("-----------------------------------------------------");
+    console.log(nama);
+    console.log(gambar);
+    console.log(harga);
+    console.log(body);
+    
+    connection.query(query, body, (error, result) => {
+        if (error) { console.log(error) }
+        console.log(result)
+    })
+}
 
-console.log(tarikdata())
-
+console.log(isidatabase());
