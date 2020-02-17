@@ -89,17 +89,15 @@ tes = async (req, res) => {
 
 isidatabase = async (req, res) => {
     let response = await axios.get("http://api.steampowered.com/ISteamApps/GetAppList/v0002")
-    let data = response.data.applist.apps.map((item) => {
-        return item.appid
-    })
-    let lempar = data[0]
+    let data = response.data.applist.apps.map((item) => item.appid)
+    let lempar = data[3]
     let anotherresponse = await axios.get(`https://store.steampowered.com/api/appdetails/?appids=${lempar}`)
     let tes = [anotherresponse.data]
     let isi = tes[0][lempar].data
     let nama = isi.name
     let gambar = isi.header_image
     let harga = isi.price_overview.initial
-    let body = {nama : nama, harga : harga, gambar:gambar}
+    let body = { nama: nama, harga: harga, gambar: gambar }
     const query = "insert into gamedata set ?"
     console.log(isi);
     console.log("-----------------------------------------------------");
@@ -107,11 +105,52 @@ isidatabase = async (req, res) => {
     console.log(gambar);
     console.log(harga);
     console.log(body);
-    
     connection.query(query, body, (error, result) => {
         if (error) { console.log(error) }
         console.log(result)
     })
 }
 
-console.log(isidatabase());
+teslooping = async () => {
+    let response = await axios.get("http://api.steampowered.com/ISteamApps/GetAppList/v0002")
+    let data = response.data.applist.apps.map((item) => item.appid)
+    for (var i = 0; i < 50; i++) {
+        try {
+            let lempar = data[i]
+            let anotherresponse = await axios.get(`https://store.steampowered.com/api/appdetails/?appids=${lempar}`)
+            let tes = [anotherresponse.data]
+            let isi = tes[0][lempar].data
+            let nama = isi.name
+            let gambar = isi.header_image
+            let harga = isi.price_overview.initial
+            let body = { nama: nama, harga: harga, gambar: gambar }
+            console.log(isi);
+            console.log("-----------------------------------------------------");
+            console.log(nama);
+            console.log(gambar);
+            console.log(harga);
+            const query = "insert into gamedata set ?"
+            connection.query(query, body, (error, result) => {
+                if (error) { console.log(error) }
+                console.log(result)
+            })
+        }
+        catch (error) {
+            // let harga = null
+            // let nama = null
+            // let gambar = null
+            // let body = { nama: nama, harga: harga, gambar: gambar }
+            console.log("data skipped");
+            
+        }
+        // finally {
+        //     const query = "insert into gamedata set ?"
+        //     connection.query(query, body, (error, result) => {
+        //         if (error) { console.log(error) }
+        //         console.log(result)
+        //     })
+        // }
+    }
+}
+
+console.log(teslooping());
